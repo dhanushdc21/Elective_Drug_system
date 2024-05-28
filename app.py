@@ -15,7 +15,12 @@ with open(r'symptoms_data (3).csv') as file:
     data = [row for row in reader]
 
 # Define selected symptoms
-selected_symptoms = ['Shortness', 'Shortness of breath', 'Runny or stuffy nose', 'Increased sensitivity to cold', 'Weakness', 'Dizziness or lightheadedness', 'Mild fever', 'Fever', 'Dizziness', 'Unintentional weight loss', 'Headache', 'Nausea or vomiting', 'Nausea']
+selected_symptoms = [
+    'Shortness', 'Shortness of breath', 'Runny or stuffy nose',
+    'Increased sensitivity to cold', 'Weakness', 'Dizziness or lightheadedness',
+    'Mild fever', 'Fever', 'Dizziness', 'Unintentional weight loss',
+    'Headache', 'Nausea or vomiting', 'Nausea'
+]
 
 # Extracting features (symptoms) and labels (disease and drug)
 X = np.array([row[:-2] for row in data], dtype=int)
@@ -28,8 +33,20 @@ label_encoder_drug = LabelEncoder()
 y_disease_encoded = label_encoder_disease.fit_transform(y_disease)
 y_drug_encoded = label_encoder_drug.fit_transform(y_drug)
 
-# Split data into train and test sets
-X_train, X_test, y_disease_train, y_disease_test, y_drug_train, y_drug_test = train_test_split(X, y_disease_encoded, y_drug_encoded, test_size=0.2, random_state=42)
+# Ensure labels are consistent in both training and test sets
+def check_labels_consistency(y_train, y_test):
+    train_labels = set(y_train)
+    test_labels = set(y_test)
+    if not test_labels.issubset(train_labels):
+        raise ValueError(f"Test set contains unseen labels: {test_labels - train_labels}")
+
+# Split data into train and test sets with stratification
+X_train, X_test, y_disease_train, y_disease_test, y_drug_train, y_drug_test = train_test_split(
+    X, y_disease_encoded, y_drug_encoded, test_size=0.2, random_state=42, stratify=y_disease_encoded)
+
+# Check for label consistency
+check_labels_consistency(y_disease_train, y_disease_test)
+check_labels_consistency(y_drug_train, y_drug_test)
 
 # Define the neural network model
 model = Sequential([
@@ -54,7 +71,10 @@ def predict_disease_and_recommend_one_drug(symptoms):
     predicted_disease_index = np.argmax(disease_probabilities)
     predicted_disease = label_encoder_disease.inverse_transform([predicted_disease_index])[0]
     # Recommend one drug
-    recommended_drug_index = np.where(y_disease_encoded == predicted_disease_index)[0][0]
+    drug_indices = np.where(y_disease_encoded == predicted_disease_index)[0]
+    if len(drug_indices) == 0:
+        return predicted_disease, "No drug found"
+    recommended_drug_index = drug_indices[0]
     recommended_drug = label_encoder_drug.inverse_transform([recommended_drug_index])[0]
     return predicted_disease, recommended_drug
 
