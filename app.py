@@ -1,10 +1,11 @@
 import numpy as np
 import csv
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, send_from_directory
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
+import os
 
 app = Flask(__name__)
 
@@ -80,7 +81,7 @@ def predict_disease_and_recommend_one_drug(symptoms):
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return send_from_directory(os.getcwd(), 'index.html')
 
 @app.route('/predict', methods=['POST'])
 def predict():
