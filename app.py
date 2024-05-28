@@ -82,15 +82,15 @@ def index():
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    symptoms = request.json['symptoms']
-    if all(symptom == 'no' for symptom in symptoms):
-        return jsonify({'disease': 'unknown', 'drug': 'none'})
-    else:
-        try:
+    try:
+        symptoms = request.json['symptoms']
+        if all(symptom == 'no' for symptom in symptoms):
+            return jsonify({'disease': 'unknown', 'drug': 'none'})
+        else:
             predicted_disease, recommended_drug = predict_disease_and_recommend_one_drug(symptoms)
             return jsonify({'disease': predicted_disease, 'drug': recommended_drug})
-        except Exception as e:
-            return jsonify({'error': str(e)}), 400
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
 
 if __name__ == '__main__':
     app.run(debug=True)
