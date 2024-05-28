@@ -9,7 +9,7 @@ from tensorflow.keras.layers import Dense
 app = Flask(__name__)
 
 # Load the dataset
-with open(r'C:\Users\chand\Desktop\folders\clg notes\mini project\Drug-Recommendation-System\src\model_training\symptoms_data (3).csv') as file:
+with open(r'symptoms_data (3).csv') as file:
     reader = csv.reader(file)
     next(reader)  # Skip the header
     data = [row for row in reader]
