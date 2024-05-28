@@ -64,14 +64,11 @@ model.fit(X_train, y_disease_train, epochs=10, batch_size=32, validation_split=0
 
 # Function to predict disease and recommend one drug
 def predict_disease_and_recommend_one_drug(symptoms):
-    # Convert user input to binary values
     user_input = np.array([1 if symptom.lower() == 'yes' else 0 for symptom in symptoms])
-    # Predict disease probabilities
     disease_probabilities = model.predict(user_input.reshape(1, -1))
-    # Find the index of the disease with the highest probability
+
     predicted_disease_index = np.argmax(disease_probabilities)
     predicted_disease = label_encoder_disease.inverse_transform([predicted_disease_index])[0]
-    # Recommend one drug
     drug_indices = np.where(y_disease_encoded == predicted_disease_index)[0]
     if len(drug_indices) == 0:
         return predicted_disease, "No drug found"
